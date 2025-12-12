@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    container_name: juegos-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: gamesdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: alumnodb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - juegos-network
+
+  backend:
+    build:
+      context: ./juegos_backend
+    container_name: juegos-backend
+    restart: unless-stopped
+    depends_on:
+      - db
+    ports:
+      - "5000:5000"
+    networks:
+      - juegos-network
+    environment:
+      DATABASE_URL: postgres://postgres:alumnodb@db:5432/gamesdb
+
+  frontend:
+    build:
+      context: ./juegos_frontend
+    container_name: juegos-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "8080:8080"
+    networks:
+      - juegos-network
+    command: npm run serve
+    environment:
+      NODE_ENV: development
+
+volumes:
+  pgdata:
+
+networks:
+  juegos-network:

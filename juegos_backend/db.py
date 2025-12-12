@@ -2,10 +2,10 @@ import psycopg2
 import psycopg2.extras
 
 # Aqui pones tus datos para la conexion con postgresql (estos eran los nuestros)
-DB_NAME = "gamesdb"
-DB_USER = "postgres"       
-DB_PASSWORD = "alumnodb"   
-DB_HOST = "db"
+DB_NAME = "gamesdb_i10j"
+DB_USER = "postgres_cdis"       
+DB_PASSWORD = "3kwrvXknIg2x9vNnxOiyNCiQueZEG63i"   
+DB_HOST = "dpg-d4u0hcm3jp1c73f6ued0-a"
 DB_PORT = "5432"
 
 
