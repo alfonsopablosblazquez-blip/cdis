@@ -1,13 +1,22 @@
-FROM node:18
+# Stage 1: Build the Vue app
+FROM node:18 as build-stage
 
 WORKDIR /app
 
 COPY package.json package-lock.json ./
-
 RUN npm install
 
 COPY . .
+RUN npm run build
 
-EXPOSE 8080
+# Stage 2: Serve with nginx
+FROM nginx:stable-alpine as production-stage
 
-CMD ["npm", "run", "serve", "--", "--host", "0.0.0.0", "--port", "8080"]
+COPY --from=build-stage /app/dist /usr/share/nginx/html
+
+# Copia configuración personalizada de nginx si quieres
+# COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
