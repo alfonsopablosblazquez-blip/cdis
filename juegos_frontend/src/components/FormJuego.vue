@@ -22,7 +22,7 @@
 </template>
 
 <script>
-const API_URL = `http://${window.location.hostname}:5000`; // IP dinámica de la MV
+const API_URL = "https://cdis-backend.onrender.com";
 
 export default {
   name: "FormJuego",

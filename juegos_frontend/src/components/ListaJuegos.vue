@@ -52,7 +52,7 @@
 </template>
 
 <script>
-const API_URL = `http://${window.location.hostname}:5000`;
+const API_URL = "https://cdis-backend.onrender.com";
 
 export default {
   name: "ListaJuegos",
