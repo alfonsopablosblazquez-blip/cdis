@@ -18,11 +18,10 @@ COPY . .
 # Crear carpeta de uploads y permisos
 RUN mkdir -p /app/uploads && chown -R 1000:1000 /app/uploads || true
 
-# Copiar wait-for-it.sh y darle permisos
+# Permisos para wait-for-it
 RUN chmod +x /app/wait-for-it.sh
 
-# Exponer puerto de la app
 EXPOSE 5000
 
-# Usar wait-for-it para esperar a la base de datos antes de arrancar Gunicorn
-CMD ["/app/wait-for-it.sh", "db:5432", "--", "gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "app:app"]
+# Esperar a la base de datos antes de arrancar
+CMD ["bash", "-c", "/app/wait-for-it.sh $DATABASE_HOST:$DATABASE_PORT --timeout=60 -- gunicorn -w 4 -b 0.0.0.0:5000 app:app"]

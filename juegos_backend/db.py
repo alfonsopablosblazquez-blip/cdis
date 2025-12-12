@@ -1,15 +1,15 @@
 import psycopg2
 import psycopg2.extras
 
-# Aqui pones tus datos para la conexion con postgresql (estos eran los nuestros)
+# Datos de conexión
 DB_NAME = "gamesdb_i10j"
-DB_USER = "postgres_cdis"       
-DB_PASSWORD = "3kwrvXknIg2x9vNnxOiyNCiQueZEG63i"   
+DB_USER = "postgres_cdis"
+DB_PASSWORD = "3kwrvXknIg2x9vNnxOiyNCiQueZEG63i"
 DB_HOST = "dpg-d4u0hcm3jp1c73f6ued0-a"
 DB_PORT = "5432"
 
 
-# crea gamesdb si no existe
+# Crear la base de datos si no existe
 def create_database_if_not_exists():
     conn = psycopg2.connect(
         dbname="postgres",
@@ -23,14 +23,15 @@ def create_database_if_not_exists():
     cur.execute("SELECT 1 FROM pg_database WHERE datname = %s;", (DB_NAME,))
     exists = cur.fetchone()
     if not exists:
-        print(f" Creando base de datos '{DB_NAME}'...")
+        print(f"Creando base de datos '{DB_NAME}'...")
         cur.execute(f'CREATE DATABASE "{DB_NAME}";')
     cur.close()
     conn.close()
 
-# para conectar a la base de datos principal cada vez que se necesite
+
+# Conectar a la base de datos principal
 def get_connection():
-     return psycopg2.connect(
+    return psycopg2.connect(
         dbname=DB_NAME,
         user=DB_USER,
         password=DB_PASSWORD,
@@ -39,7 +40,7 @@ def get_connection():
     )
 
 
-# crela la tabla games si no existe
+# Crear la tabla games si no existe
 def init_db():
     create_database_if_not_exists()
     conn = get_connection()
@@ -47,7 +48,7 @@ def init_db():
     cur.execute("""
         CREATE TABLE IF NOT EXISTS games (
             id SERIAL PRIMARY KEY,
-            nombre TEXT NOT NULL,
+            nombre TEXT NOT NULL UNIQUE,
             descripcion TEXT,
             anio INTEGER,
             imagen TEXT,
@@ -59,17 +60,13 @@ def init_db():
     cur.close()
     conn.close()
 
-# se insertan los juegos que ya teniamos en el proyecto para tener como base
+
+# Insertar juegos iniciales de forma segura
 def insert_default_games():
     conn = get_connection()
     cur = conn.cursor()
-    cur.execute("SELECT COUNT(*) FROM games;")
-    count = cur.fetchone()[0]
 
-    if count == 0:
-        print("Insertando juegos iniciales...")
-        default_games = [
-        
+    default_games = [
         {
             "nombre": "Grand Theft Auto V",
             "descripcion": "Acción-aventura de mundo abierto",
@@ -77,7 +74,7 @@ def insert_default_games():
             "imagen": "gtav.jpeg",
             "url": "https://es.wikipedia.org/wiki/Grand_Theft_Auto_V"
         },
-        { 
+        {
             "nombre": "Super Mario Kart",
             "descripcion": "Carreras basada en la franquicia Mario, los jugadores compiten en carreras de karts usando diversos potenciadores, personajes y coches",
             "anio": 1992,
@@ -86,7 +83,7 @@ def insert_default_games():
         },
         {
             "nombre": "Clash of Clans",
-            "descripcion": "Estrategia y construcción de aldeas en línea, para dispositivos móviles. Desarrollado  por Supercell",
+            "descripcion": "Estrategia y construcción de aldeas en línea, para dispositivos móviles. Desarrollado por Supercell",
             "anio": 2012,
             "imagen": "91ORNgyTf2L.png",
             "url": "https://es.wikipedia.org/wiki/Clash_of_Clans"
@@ -97,39 +94,36 @@ def insert_default_games():
             "anio": 2016,
             "imagen": "clashroyale.png",
             "url": "https://es.wikipedia.org/wiki/Clash_Royale"
-
         },
         {
             "nombre": "Tres en Raya",
-            "descripcion": "El “tres en raya” es un juego de tablero, en el cual el objetivo es conseguir poner tres piezas sobre el tablero (de 3 por 3 posiciones) de manera que estén en línea recta (horizontal, vertical o diagonal).",
+            "descripcion": "El “tres en raya” es un juego de tablero, en el cual el objetivo es conseguir poner tres piezas sobre el tablero de 3x3 posiciones en línea recta",
             "anio": 2023,
-            "imagen": "Tic_tac_toe.svg", 
+            "imagen": "Tic_tac_toe.svg",
             "url": "https://es.wikipedia.org/wiki/Tres_en_l%C3%ADnea",
             "esinterno": True
-          },
-          {
+        },
+        {
             "nombre": "Fall Guys",
-            "descripcion": "Plataformas y battle royale gratuito. Consta de hasta 32 jugadores que compiten entre sí con distintos personajes en una serie de minijuegos seleccionados al azar",
+            "descripcion": "Plataformas y battle royale gratuito. Hasta 32 jugadores compiten entre sí en minijuegos aleatorios",
             "anio": 2020,
             "imagen": "fg-fg-1920x1080-b25bc4113574.jpg",
             "url": "https://es.wikipedia.org/wiki/Fall_Guys"
-          },
-          {
+        },
+        {
             "nombre": "Valorant",
-            "descripcion": "Valorant es un shooter táctico en primera persona de estilo hero shooter, desarrollado y publicado por Riot Games. ",
+            "descripcion": "Shooter táctico en primera persona estilo hero shooter desarrollado por Riot Games",
             "anio": 2014,
             "imagen": "valorant.png",
             "url": "https://en.wikipedia.org/wiki/Valorant"
-
-        },        
+        },
         {
             "nombre": "Counter-Strike",
-            "descripcion": "Counter-Strike (CS) es una serie de videojuegos multijugador de disparos en primera persona tácticos en los que equipos de terroristas luchan para perpetrar un acto de terror mientras que los antiterroristas intentan prevenirlo.",
+            "descripcion": "Serie de videojuegos multijugador de disparos tácticos en primera persona",
             "anio": 2000,
             "imagen": "Counter-Strike.png",
             "url": "https://es.wikipedia.org/wiki/Counter-Strike_(serie)"
-
-        },        
+        },
         {
             "nombre": "Cuphead",
             "descripcion": "Cuphead (subtitulado Don't deal with The Devil...)",
@@ -139,22 +133,30 @@ def insert_default_games():
         },
         {
             "nombre": "Crucigramas",
-            "descripcion": "Un crucigrama es un pasatiempo en el que se deben descubrir palabras que se entrecruzan en una cuadrícula, a partir de unas definiciones o sugerencias que se proporcionan y de las pistas que van generándose con el conocimiento de las letras de otras palabras que hayamos acertado.",
+            "descripcion": "Pasatiempo en el que se descubren palabras que se entrecruzan en una cuadrícula",
             "anio": 100,
             "imagen": "crucigrama.png",
             "url": "https://elpais.com/juegos/crucigramas/experto/"
+        }
+    ]
 
-        } ] 
-        for g in default_games:
-            cur.execute("""
-                INSERT INTO games (nombre, descripcion, anio, imagen, url, esinterno)
-                VALUES (%s, %s, %s, %s, %s, %s);
-            """, (g["nombre"], g["descripcion"], g["anio"], g["imagen"], g["url"], g.get("esinterno", False)))
-        conn.commit()
-        print("Juegos insertados correctamente.")
-    else:
-        print("Juegos ya existen, no se insertan de nuevo.")
+    for g in default_games:
+        # Inserción segura: solo si no existe un juego con el mismo nombre
+        cur.execute("""
+            INSERT INTO games (nombre, descripcion, anio, imagen, url, esinterno)
+            SELECT %s, %s, %s, %s, %s, %s
+            WHERE NOT EXISTS (
+                SELECT 1 FROM games WHERE nombre = %s
+            );
+        """, (g["nombre"], g["descripcion"], g["anio"], g["imagen"], g["url"], g.get("esinterno", False), g["nombre"]))
 
+    conn.commit()
+    print("Juegos insertados correctamente o ya existían.")
     cur.close()
     conn.close()
 
+
+# Inicialización segura
+if __name__ == "__main__":
+    init_db()
+    insert_default_games()
